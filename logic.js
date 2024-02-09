@@ -12,6 +12,9 @@ var i = [];
 var j = [xCoor, yCoor];
 var m = 0;
 var b = 0;
+var d = 0;
+var count = 0;
+var pressed = false;
 
 var variables = getComputedStyle(document.documentElement);
 
@@ -62,10 +65,11 @@ document.addEventListener("keyup", function(e) {
 });
 
 document.addEventListener("mousedown", function(e) {
-    if (e.button == 0) {
+    if (e.button == 0 && !pressed) {
         xCoor = e.pageX;
         yCoor = e.pageY;
         click = true;
+        pressed = true;
         line();
         clearInterval(moveInterval);
         moveInterval = setInterval(moveToPoint, 1);
@@ -78,6 +82,8 @@ document.addEventListener("mousedown", function(e) {
             return false;
         }
         click = false;
+        pressed = false;
+        count = 0;
         clearInterval(moveInterval);
     }
 });
@@ -118,6 +124,9 @@ function line() {
 
     m = (j[1] - i[1]) / (j[0] - i[0]);
     b = j[1] - (m * j[0]);
+    d = Math.sqrt(Math.pow(j[0] - i[0], 2) + Math.pow(j[1] -i[1], 2));
+
+    count = 0.25;
     return;
 }
 
@@ -130,23 +139,18 @@ function moveToPoint() {
     
     i = [x, y];
 
-    let newX = x > xCoor ? i[0] - 1 : i[0] + 1;
-    let newY = m * (i[0] + 2) + b;
+    let newX = i[0] - ((count * (0.5 * (i[0] - j[0]))) / d);
+    let newY = i[1] - ((count * (0.5 * (i[1] - j[1]))) / d);
 
-    if (Math.abs(xCoor - x) <= 0.1 && Math.abs(yCoor - y) <= 0.1) {
-        stop();
+    if (Math.abs(xCoor - x) <= 5 && Math.abs(yCoor - y) <= 5) {
+        click = false;
+        pressed = false;
+        count = 0;
+        clearInterval(moveInterval);
     }
     else {
-        if (Math.abs(xCoor - x) > 0.1) {
-            document.documentElement.style.setProperty("--x", newX + "px");
-        }
-        if (Math.abs(yCoor - y) > 0.1) {
-            document.documentElement.style.setProperty("--y", newY + "px");
-        }
+        count += 0.25;
+        document.documentElement.style.setProperty("--x", newX + "px");
+        document.documentElement.style.setProperty("--y", newY + "px");
     }
-}
-
-function stop() {
-    click = false;
-    clearInterval(moveInterval);
 }
