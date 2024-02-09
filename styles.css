@@ -1,0 +1,30 @@
+:root {
+    --y: 500px;
+    --x: 500px;
+}
+
+body {
+    background-color: black;
+    overflow-y: hidden;
+    padding: 0px;
+    margin: 0px;
+}
+
+.player {
+    position: absolute;
+    padding: inherit;
+    margin: inherit;
+    top: var(--y);
+    left: var(--x);
+    margin-top: -10px;
+    margin-left: -10px;
+}
+
+.model { 
+    background-color: white;
+    height: 20px;
+    width: 20px;
+    border-radius: 20px;
+    padding: inherit;
+    margin: inherit;
+}
