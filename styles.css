@@ -1,6 +1,6 @@
 :root {
-    --y: 500px;
-    --x: 500px;
+    --y: 609px;
+    --x: 593px;
 }
 
 body {
@@ -12,12 +12,25 @@ body {
 
 .player {
     position: absolute;
-    padding: inherit;
-    margin: inherit;
+    padding: 0px;
+    margin: 0px;
     top: var(--y);
     left: var(--x);
+    /* left: 554px; */
+    /* Add 58 px to go the next one */
+    /* Plus a padding of 15 on left and right */
+    /* Plus a padding of 15 on top and bottom */
+    /* 39 off a center of the tile to move to the next tile */
+
+    /* top: 551px;
+    left: 535px; */
+    
     margin-top: -10px;
     margin-left: -10px;
+}
+
+.player:hover {
+    cursor: pointer;
 }
 
 .model { 
@@ -28,3 +41,33 @@ body {
     padding: inherit;
     margin: inherit;
 }
+
+
+.grid {
+    /* justify-content: center; */
+    margin-top: 500px;
+    margin-left: 500px;
+    display: grid;
+    grid-template-rows: repeat(3, 50px);
+    grid-template-columns: repeat(3, 50px);
+    row-gap: 8px;
+    column-gap: 8px;
+}
+
+.tile {
+    background-color: rgb(149, 160, 149);
+    height: 50px;
+    width: 50px;
+    border: none;
+    border-radius: 10px;
+    justify-content: center;
+    /* z-index: 1; */
+}
+
+/* .tile:hover {
+    cursor: pointer;
+} */
+
+/* .tile:active {
+    background-color: #ffff00;
+} */

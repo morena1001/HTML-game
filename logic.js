@@ -1,25 +1,19 @@
 var leftInterval, rightInterval, upInterval, downInterval, moveInterval;
+var variables = getComputedStyle(document.documentElement);
 
 var left = false;
 var right = false;
 var up = false;
 var down = false;
-var click = false;
-
-var xCoor = 0;
-var yCoor = 0;
-var i = [];
-var j = [xCoor, yCoor];
-var m = 0;
-var b = 0;
-var d = 0;
-var count = 0;
 var pressed = false;
 
-var variables = getComputedStyle(document.documentElement);
+// var currentX = variables.getPropertyValue("--x");
+// var currentY = variables.getPropertyValue("--y");
+var currentX = parseInt(variables.getPropertyValue("--x").substring(0, variables.getPropertyValue("--x").length - 2)) - 2;
+var currentY = parseInt(variables.getPropertyValue("--y").substring(0, variables.getPropertyValue("--y").length - 2)) - 2;
 
 document.addEventListener("keydown", function(e) {
-    if (!click) {
+    if (!pressed) {
         if (e.key == "ArrowLeft" && !left) {
             left = true;
             leftInterval = setInterval(moveLeft, 1);
@@ -64,29 +58,29 @@ document.addEventListener("keyup", function(e) {
     }
 });
 
-document.addEventListener("mousedown", function(e) {
-    if (e.button == 0 && !pressed) {
-        xCoor = e.pageX;
-        yCoor = e.pageY;
-        click = true;
-        pressed = true;
-        line();
-        clearInterval(moveInterval);
-        moveInterval = setInterval(moveToPoint, 1);
-    }
-
-    if (e.button == 2) {
-        window.oncontextmenu = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            return false;
+document.addEventListener("mousemove", function(e) {
+    if (pressed) {
+        if (e.clientX <= (currentX + 100) && e.clientX >= (currentX - 100)) {
+            document.documentElement.style.setProperty("--x", (e.clientX + 10) + "px");
         }
-        click = false;
-        pressed = false;
-        count = 0;
-        clearInterval(moveInterval);
+        if (e.clientY <= currentY + 100 && e.clientY >= currentY - 100) {
+            document.documentElement.style.setProperty("--y", (e.clientY + 5) + "px");
+        }
     }
 });
+
+document.getElementById("model").addEventListener("mousedown", function() {
+    pressed = true;
+});
+
+document.addEventListener("mouseup", function() {
+    pressed = false;
+    currentX = parseInt(variables.getPropertyValue("--x").substring(0, variables.getPropertyValue("--x").length - 2)) - 2;;
+    currentY = parseInt(variables.getPropertyValue("--y").substring(0, variables.getPropertyValue("--y").length - 2)) - 2;
+});
+
+
+
 
 function moveLeft() {
     let xVar = variables.getPropertyValue("--x");
@@ -110,47 +104,4 @@ function moveDown() {
     let yVar = variables.getPropertyValue("--y");
     let y = parseInt(yVar.substring(0, yVar.length - 2)) + 2;
     if (y <= document.documentElement.scrollHeight - 7) document.documentElement.style.setProperty("--y", y + "px");
-}
-
-function line() {
-    let xVar= variables.getPropertyValue("--x");
-    let yVar = variables.getPropertyValue("--y");
-
-    let x = parseInt(xVar.substring(0, xVar.length - 2));
-    let y = parseInt(yVar.substring(0, yVar.length - 2));
-
-    i = [x, y];
-    j = [xCoor, yCoor];
-
-    m = (j[1] - i[1]) / (j[0] - i[0]);
-    b = j[1] - (m * j[0]);
-    d = Math.sqrt(Math.pow(j[0] - i[0], 2) + Math.pow(j[1] -i[1], 2));
-
-    count = 0.25;
-    return;
-}
-
-function moveToPoint() {
-    let xVar= variables.getPropertyValue("--x");
-    let yVar = variables.getPropertyValue("--y");
-
-    let x = parseInt(xVar.substring(0, xVar.length - 2));
-    let y = parseInt(yVar.substring(0, yVar.length - 2));
-    
-    i = [x, y];
-
-    let newX = i[0] - ((count * (0.5 * (i[0] - j[0]))) / d);
-    let newY = i[1] - ((count * (0.5 * (i[1] - j[1]))) / d);
-
-    if (Math.abs(xCoor - x) <= 5 && Math.abs(yCoor - y) <= 5) {
-        click = false;
-        pressed = false;
-        count = 0;
-        clearInterval(moveInterval);
-    }
-    else {
-        count += 0.25;
-        document.documentElement.style.setProperty("--x", newX + "px");
-        document.documentElement.style.setProperty("--y", newY + "px");
-    }
 }
