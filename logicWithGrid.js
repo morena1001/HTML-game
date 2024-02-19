@@ -1,22 +1,28 @@
 var pressed = false;
 var moves = 3;
+var health = 100;
+var attack = 0;
+var blockPower = 0;
 var currentX;
 var currentY;
 var currentTile;
 var currentPiece;
 
 var token;
+var heal = 10;
+var shortAttack = 10;
+var longAttack = 15;
+var block = 5
 
 
 
 window.onload = function() {
     document.getElementById("moves-text").innerHTML = moves;
-    // console.log(document.getElementById("00").getAttribute("data-matched"));
     var tiles = document.getElementsByClassName("tile");
     for(let i = 0; i < tiles.length; i++) {
         let child = tiles[i].firstElementChild;
         child.addEventListener("mousedown", function() {
-            if(moves > 0) {
+            if(moves > 0 && child.parentElement.getAttribute("data-matched") == "false") {
                 pressed = true;
                 currentTile = child.parentElement;
                 currentPiece = child;
@@ -106,8 +112,12 @@ document.addEventListener("mouseup", function() {
             matchFinder(newTile);
             matchFinder(currentTile.id);
 
-            // document.getElementById("00").setAttribute("data-matched", "yeah");
-            // console.log(document.getElementById("00").getAttribute("data-matched"));
+            if (moves == 0) {
+                performMoves();
+                moves = 3;
+                document.getElementById("moves-text").innerHTML = moves;
+                resetTiles();
+            }
         }
 
         document.getElementById(currentTile.id).firstElementChild.style.left = 35 + "px";
@@ -115,171 +125,161 @@ document.addEventListener("mouseup", function() {
     }
 });
 
+
+
 function matchFinder(tile) {
     let x = parseInt(tile[0]);
     let y = parseInt(tile[1]);
+    let firstTile = document.getElementById(tile).firstElementChild.firstElementChild.classList[1];
+    let tiles = [];
 
-    // Check tiles on top
-    if (x > 1) {
-        let tile1 = document.getElementById(x.toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-        let tile2 = document.getElementById((x - 1).toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-        let tile3 = document.getElementById((x - 2).toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-
-        if (tile1 == tile2 && tile2 == tile3) {
-            document.getElementById(x.toString() + y.toString()).setAttribute("data-matched", "true");
-            document.getElementById((x - 1).toString() + y.toString()).setAttribute("data-matched", "true");
-            document.getElementById((x - 2).toString() + y.toString()).setAttribute("data-matched", "true");
-
-            switch(tile1) {
-                case "heal":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-heal");
-                    document.getElementById((x - 1).toString() + y.toString()).classList.add("matched-heal");
-                    document.getElementById((x - 2).toString() + y.toString()).classList.add("matched-heal");
-                    break;
-                
-                case "short-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-short-attack");
-                    document.getElementById((x - 1).toString() + y.toString()).classList.add("matched-short-attack");
-                    document.getElementById((x - 2).toString() + y.toString()).classList.add("matched-short-attack");
-                    break;
-
-                case "long-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-long-attack");
-                    document.getElementById((x - 1).toString() + y.toString()).classList.add("matched-long-attack");
-                    document.getElementById((x - 2).toString() + y.toString()).classList.add("matched-long-attack");
-                    break;
-
-                case "block":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-block");
-                    document.getElementById((x - 1).toString() + y.toString()).classList.add("matched-block");
-                    document.getElementById((x - 2).toString() + y.toString()).classList.add("matched-block");
-                    break;
-            }
-
-            matchFinder((x - 1).toString() + y.toString());
+    tiles.push(tile);
+    let top = x - 1;
+    while (top >= 0) {
+        let topTile = document.getElementById(top.toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
+        if (topTile == firstTile) {
+            tiles.push(top.toString() + y.toString());
+            top--;
+        }
+        else {
+            break;
         }
     }
 
-    // Check tiles on bottom
-    if (x < 3) {
-        let tile1 = document.getElementById(x.toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-        let tile2 = document.getElementById((x + 1).toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-        let tile3 = document.getElementById((x + 2).toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-
-        if (tile1 == tile2 && tile2 == tile3) {
-            document.getElementById(x.toString() + y.toString()).setAttribute("data-matched", "true");
-            document.getElementById((x + 1).toString() + y.toString()).setAttribute("data-matched", "true");
-            document.getElementById((x + 2).toString() + y.toString()).setAttribute("data-matched", "true");
-
-            switch(tile1) {
-                case "heal":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-heal");
-                    document.getElementById((x + 1).toString() + y.toString()).classList.add("matched-heal");
-                    document.getElementById((x + 2).toString() + y.toString()).classList.add("matched-heal");
-                    break;
-                
-                case "short-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-short-attack");
-                    document.getElementById((x + 1).toString() + y.toString()).classList.add("matched-short-attack");
-                    document.getElementById((x + 2).toString() + y.toString()).classList.add("matched-short-attack");
-                    break;
-
-                case "long-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-long-attack");
-                    document.getElementById((x + 1).toString() + y.toString()).classList.add("matched-long-attack");
-                    document.getElementById((x + 2).toString() + y.toString()).classList.add("matched-long-attack");
-                    break;
-
-                case "block":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-block");
-                    document.getElementById((x + 1).toString() + y.toString()).classList.add("matched-block");
-                    document.getElementById((x + 2).toString() + y.toString()).classList.add("matched-block");
-                    break;
-            }
-
-            matchFinder((x + 1).toString() + y.toString());
+    let bottom = x + 1;
+    while (bottom <= 4) {
+        let bottomTile = document.getElementById(bottom.toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
+        if (bottomTile == firstTile) {
+            tiles.push(bottom.toString() + y.toString());
+            bottom++;
+        }
+        else {
+            break;
         }
     }
 
-    // Check tiles on right
-    if (y < 5) {
-        let tile1 = document.getElementById(x.toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-        let tile2 = document.getElementById(x.toString() + (y + 1).toString()).firstElementChild.firstElementChild.classList[1];
-        let tile3 = document.getElementById(x.toString() + (y + 2).toString()).firstElementChild.firstElementChild.classList[1];
+    if (tiles.length >= 3) {
+        let color = "";
+        switch(firstTile) {
+            case "heal":
+                color = "matched-heal";
+                break;
+            
+            case "short-attack":
+                color = "matched-short-attack";
+                break;
 
-        if (tile1 == tile2 && tile2 == tile3) {
-            document.getElementById(x.toString() + y.toString()).setAttribute("data-matched", "true");
-            document.getElementById(x.toString() + (y + 1).toString()).setAttribute("data-matched", "true");
-            document.getElementById(x.toString() + (y + 2).toString()).setAttribute("data-matched", "true");
+            case "long-attack":
+                color = "matched-long-attack";
+                break;
 
-            switch(tile1) {
-                case "heal":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-heal");
-                    document.getElementById(x.toString() + (y + 1).toString()).classList.add("matched-heal");
-                    document.getElementById(x.toString() + (y + 2).toString()).classList.add("matched-heal");
-                    break;
-                
-                case "short-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-short-attack");
-                    document.getElementById(x.toString() + (y + 1).toString()).classList.add("matched-short-attack");
-                    document.getElementById(x.toString() + (y + 2).toString()).classList.add("matched-short-attack");
-                    break;
+            case "block":
+                color = "matched-block";
+                break;
+        }
 
-                case "long-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-long-attack");
-                    document.getElementById(x.toString() + (y + 1).toString()).classList.add("matched-long-attack");
-                    document.getElementById(x.toString() + (y + 2).toString()).classList.add("matched-long-attack");
-                    break;
-
-                case "block":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-block");
-                    document.getElementById(x.toString() + (y + 1).toString()).classList.add("matched-block");
-                    document.getElementById(x.toString() + (y + 2).toString()).classList.add("matched-block");
-                    break;
-            }
-
-            matchFinder(x.toString() + (y + 1).toString());
+        for (let i = 0; i < tiles.length; i++) {
+            document.getElementById(tiles[i]).setAttribute("data-matched", "true");
+            document.getElementById(tiles[i]).classList.add(color);
         }
     }
 
-    // Check tiles on left
-    if (y > 1) {
-        let tile1 = document.getElementById(x.toString() + y.toString()).firstElementChild.firstElementChild.classList[1];
-        let tile2 = document.getElementById(x.toString() + (y - 1).toString()).firstElementChild.firstElementChild.classList[1];
-        let tile3 = document.getElementById(x.toString() + (y - 2).toString()).firstElementChild.firstElementChild.classList[1];
 
-        if (tile1 == tile2 && tile2 == tile3) {
-            document.getElementById(x.toString() + y.toString()).setAttribute("data-matched", "true");
-            document.getElementById(x.toString() + (y - 1).toString()).setAttribute("data-matched", "true");
-            document.getElementById(x.toString() + (y - 2).toString()).setAttribute("data-matched", "true");
 
-            switch(tile1) {
-                case "heal":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-heal");
-                    document.getElementById(x.toString() + (y - 1).toString()).classList.add("matched-heal");
-                    document.getElementById(x.toString() + (y - 2).toString()).classList.add("matched-heal");
-                    break;
-                
-                case "short-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-short-attack");
-                    document.getElementById(x.toString() + (y - 1).toString()).classList.add("matched-short-attack");
-                    document.getElementById(x.toString() + (y - 2).toString()).classList.add("matched-short-attack");
-                    break;
+    tiles = [];
 
-                case "long-attack":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-long-attack");
-                    document.getElementById(x.toString() + (y - 1).toString()).classList.add("matched-long-attack");
-                    document.getElementById(x.toString() + (y - 2).toString()).classList.add("matched-long-attack");
-                    break;
+    tiles.push(tile);
+    let left = y - 1;
+    while (left >= 0) {
+        let leftTile = document.getElementById(x.toString() + left.toString()).firstElementChild.firstElementChild.classList[1];
+        if (leftTile == firstTile) {
+            tiles.push(x.toString() + left.toString());
+            left--;
+        }
+        else {
+            break;
+        }
+    }
 
-                case "block":
-                    document.getElementById(x.toString() + y.toString()).classList.add("matched-block");
-                    document.getElementById(x.toString() + (y - 1).toString()).classList.add("matched-block");
-                    document.getElementById(x.toString() + (y - 2).toString()).classList.add("matched-block");
-                    break;
-            }
+    let right = y + 1;
+    while (right <= 6) {
+        let rightTile = document.getElementById(x.toString() + right.toString()).firstElementChild.firstElementChild.classList[1];
+        if (rightTile == firstTile) {
+            tiles.push(x.toString() + right.toString());
+            right++;
+        }
+        else {
+            break;
+        }
+    }
 
-            matchFinder(x.toString() + (y - 1).toString());
+    if (tiles.length >= 3) {
+        let color = "";
+        switch(firstTile) {
+            case "heal":
+                color = "matched-heal";
+                break;
+            
+            case "short-attack":
+                color = "matched-short-attack";
+                break;
+
+            case "long-attack":
+                color = "matched-long-attack";
+                break;
+
+            case "block":
+                color = "matched-block";
+                break;
+        }
+
+        for (let i = 0; i < tiles.length; i++) {
+            document.getElementById(tiles[i]).setAttribute("data-matched", "true");
+            document.getElementById(tiles[i]).classList.add(color);
         }
     }
 }
+
+function performMoves() {
+    var tiles = document.getElementsByClassName("tile");
+    for (let i = 0; i < tiles.length; i++) {
+        if (tiles[i].getAttribute("data-matched") == "true") {
+            // console.log("+10 " + tiles[i].firstElementChild.firstElementChild.classList[1]);
+            switch(tiles[i].firstElementChild.firstElementChild.classList[1]) {
+                case "heal":
+                    if (health < 91) {
+                        health += heal;
+                    }
+                    else if (health < 100) {
+                        health = 100;
+                    }
+                    break;
+
+                case "short-attack":
+                    attack += shortAttack;
+                    break;
+
+                case "long-attack":
+                    attack += longAttack;
+                    break;
+
+                case "block":
+                    blockPower += block;
+                    break;
+            }
+        }
+    }
+
+    console.log(health + " " + attack + " " + blockPower);
+}
+
+function resetTiles() {
+    var tiles = document.getElementsByClassName("tile");
+    for (let i = 0; i < tiles.length; i++) {
+        if (tiles[i].getAttribute("data-matched") == "true") {
+            tiles[i].setAttribute("data-matched", "false");
+            tiles[i].classList.remove("matched-" + tiles[i].firstElementChild.firstElementChild.classList[1]);
+        }
+    }
+}
+ 
