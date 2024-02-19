@@ -111,3 +111,27 @@ body {
 /* .tile:active {
     background-color: #ffff00;
 } */
+
+.moves-text {
+    color: white;
+    font-size: 25px;
+    position: absolute;
+    left: 450px;
+    bottom: 300px;
+}
+
+.matched-heal {
+    background-color: rgb(241, 109, 109);
+}
+
+.matched-short-attack {
+    background-color: rgb(101, 180, 101);
+}
+
+.matched-long-attack {
+    background-color: rgb(109, 109, 231);
+}
+
+.matched-block {
+    background-color: rgb(121, 35, 35);
+}
