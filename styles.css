@@ -120,6 +120,56 @@ body {
     bottom: 300px;
 }
 
+.health-text {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    left: 950px;
+    bottom: 300px;
+}
+
+.damage-out-text {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    left: 950px;
+    bottom: 250px;
+}
+
+.damage-in-text {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    left: 950px;
+    bottom: 200px;
+}
+
+.block-text {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    left: 950px;
+    bottom: 150px;
+}
+
+.moves-chat-text {
+    color: white;
+    font-size: 15px;
+    position: absolute;
+    padding-left: 10px;
+}
+
+.moves-chat {
+    position: relative;
+    left: 10px;
+    bottom: 250px;
+    width: 250px;
+    height: 300px;
+    border: 1px solid white;
+    border-radius: 10px;
+    overflow-y: scroll;
+}
+
 .matched-heal {
     background-color: rgb(241, 109, 109);
 }

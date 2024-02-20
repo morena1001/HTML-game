@@ -2,23 +2,30 @@ var pressed = false;
 var moves = 3;
 var health = 100;
 var attack = 0;
+var damage = 0;
 var blockPower = 0;
 var currentX;
 var currentY;
 var currentTile;
 var currentPiece;
+var match = false;
+var tiles;
 
 var token;
 var heal = 10;
 var shortAttack = 10;
 var longAttack = 15;
-var block = 5
-
+var block = 5;
 
 
 window.onload = function() {
     document.getElementById("moves-text").innerHTML = moves;
-    var tiles = document.getElementsByClassName("tile");
+    document.getElementById("health-text").innerHTML = "health : " + health;
+    document.getElementById("damage-out-text").innerHTML = "damage out : " + attack;
+    document.getElementById("damage-in-text").innerHTML = "damage in : " + damage;
+    document.getElementById("block-text").innerHTML = "block : " + blockPower; 
+    document.getElementById("moves-chat-text").innerHTML = "";
+    tiles = document.getElementsByClassName("tile");
     for(let i = 0; i < tiles.length; i++) {
         let child = tiles[i].firstElementChild;
         child.addEventListener("mousedown", function() {
@@ -99,6 +106,9 @@ document.addEventListener("mouseup", function() {
             document.getElementById(currentTile.id).firstElementChild.style.top = 33 + "px";
         }
 
+        document.getElementById(currentTile.id).firstElementChild.style.left = 35 + "px";
+        document.getElementById(currentTile.id).firstElementChild.style.top = 33 + "px";
+
         let otherToken = document.getElementById(newTile).firstElementChild.firstElementChild.classList[1];
         if (otherToken != token) {
             currentPiece.firstElementChild.classList.remove(token);
@@ -109,19 +119,36 @@ document.addEventListener("mouseup", function() {
 
             moves--;
             document.getElementById("moves-text").innerHTML = moves;
-            matchFinder(newTile);
-            matchFinder(currentTile.id);
+            tiles = document.getElementsByClassName("tile");
+            for (let i = 0; i < tiles.length; i++) {
+                matchFinder(tiles[i].id)
+            }
 
             if (moves == 0) {
-                performMoves();
+                if (match) {
+                    attack = 0;
+                    blockPower = 0;
+                    performMoves();
+                    resetTiles();
+    
+                    match = false;
+                    for (let i = 0; i < tiles.length; i++) {
+                        matchFinder(tiles[i].id);
+                        if (match) {
+                            performMoves();
+                            resetTiles();
+                        }
+                        if (i == tiles.length - 1 && match) {
+                            i = -1;
+                            match = false;
+                        }
+                    }
+                }
+            
                 moves = 3;
                 document.getElementById("moves-text").innerHTML = moves;
-                resetTiles();
             }
         }
-
-        document.getElementById(currentTile.id).firstElementChild.style.left = 35 + "px";
-        document.getElementById(currentTile.id).firstElementChild.style.top = 33 + "px";
     }
 });
 
@@ -159,6 +186,7 @@ function matchFinder(tile) {
     }
 
     if (tiles.length >= 3) {
+        match = true;
         let color = "";
         switch(firstTile) {
             case "heal":
@@ -214,6 +242,7 @@ function matchFinder(tile) {
     }
 
     if (tiles.length >= 3) {
+        match = true;
         let color = "";
         switch(firstTile) {
             case "heal":
@@ -241,10 +270,12 @@ function matchFinder(tile) {
 }
 
 function performMoves() {
-    var tiles = document.getElementsByClassName("tile");
+    tiles = document.getElementsByClassName("tile");
+    let oldHealth = health;
+    let oldAttack = attack;
+    let oldBlock = blockPower;
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i].getAttribute("data-matched") == "true") {
-            // console.log("+10 " + tiles[i].firstElementChild.firstElementChild.classList[1]);
             switch(tiles[i].firstElementChild.firstElementChild.classList[1]) {
                 case "heal":
                     if (health < 91) {
@@ -269,17 +300,63 @@ function performMoves() {
             }
         }
     }
-
-    console.log(health + " " + attack + " " + blockPower);
+    document.getElementById("health-text").innerHTML = "health : " + health;
+    document.getElementById("damage-out-text").innerHTML = "damage out : " + attack;
+    document.getElementById("damage-in-text").innerHTML = "damage in : " + damage;
+    document.getElementById("block-text").innerHTML = "block : " + blockPower; 
+    if (health != oldHealth || attack != oldAttack || blockPower != oldBlock) {
+        document.getElementById("moves-chat-text").innerHTML += "health : " + health + "  attack : " + attack + "  block : " + blockPower + "<br/>";
+        console.log(health + " " + attack + " " + blockPower);
+    }
+    
 }
 
 function resetTiles() {
-    var tiles = document.getElementsByClassName("tile");
+    tiles = document.getElementsByClassName("tile");
+    let removed = []
+
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i].getAttribute("data-matched") == "true") {
             tiles[i].setAttribute("data-matched", "false");
             tiles[i].classList.remove("matched-" + tiles[i].firstElementChild.firstElementChild.classList[1]);
+            tiles[i].firstElementChild.firstElementChild.classList.remove(tiles[i].firstElementChild.firstElementChild.classList[1]);
+            removed.push(tiles[i].id);
         }
+    }
+
+    for (let i = 0; i < removed.length; i++) {
+        let current = removed[i];
+        while (current[0] != "0") {
+            let temp =  (parseInt(current[0]) - 1) + current[1];
+            if (document.getElementById(temp).firstElementChild.firstElementChild.classList.length == 1) {
+                break;
+            }
+
+            let tempPiece = document.getElementById(temp).firstElementChild.firstElementChild.classList[1];
+            document.getElementById(temp).firstElementChild.firstElementChild.classList.remove(tempPiece);
+            document.getElementById(current).firstElementChild.firstElementChild.classList.add(tempPiece);
+            current = temp;
+        }
+
+        let newTile = Math.floor(Math.random() * 4);
+        switch(newTile) {
+            case 0:
+                document.getElementById(current).firstElementChild.firstElementChild.classList.add("heal");
+                break;
+
+            case 1:
+                document.getElementById(current).firstElementChild.firstElementChild.classList.add("short-attack");
+                break;
+
+            case 2:
+                document.getElementById(current).firstElementChild.firstElementChild.classList.add("long-attack");
+                break;
+
+            case 3:
+                document.getElementById(current).firstElementChild.firstElementChild.classList.add("block");
+                break;
+        }
+        
     }
 }
  
