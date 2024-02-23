@@ -16,8 +16,8 @@ body {
     position: absolute;
     padding: 0px;
     margin: 0px;
-    top: 33px;
-    left: 35px;
+    top: 32px;
+    left: 34px;
     /* top: var(--y);
     left: var(--x); */
     /* top: 33px;
@@ -90,14 +90,20 @@ body {
 }
 
 .tile {
-    background-color: rgb(149, 160, 149);
+    /* background-color: rgb(149, 160, 149); */
+    background: inherit;
+    border: 1px solid gray;
     height: 50px;
     width: 50px;
-    border: none;
+    /* border: none; */
     border-radius: 10px;
     justify-content: center;
     position: relative;
     /* z-index: 1; */
+}
+
+.text {
+    color: white;
 }
 
 .link {
@@ -167,7 +173,11 @@ body {
     height: 300px;
     border: 1px solid white;
     border-radius: 10px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    scrollbar-width: none;
 }
 
 .matched-heal {
